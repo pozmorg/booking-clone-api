@@ -1,0 +1,232 @@
+openapi: 3.0.0
+info:
+  title: Booking.com API
+  description: API for managing hotels and bookings.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+paths:
+  /hotels:
+    get:
+      summary: Get all hotels
+      description: Returns a list of all available hotels.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Hotel'
+
+    post:
+      summary: Add a new hotel
+      description: Creates a new hotel.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Hotel'
+      responses:
+        '201':
+          description: Hotel successfully created
+        '400':
+          description: Invalid input
+
+  /hotels/{hotelId}:
+    get:
+      summary: Get hotel details
+      description: Returns the details of a specific hotel by ID.
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Hotel ID
+      responses:
+        '200':
+          description: Hotel details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hotel'
+        '404':
+          description: Hotel not found
+
+    put:
+      summary: Update hotel details
+      description: Updates the details of a specific hotel.
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Hotel ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Hotel'
+      responses:
+        '200':
+          description: Hotel successfully updated
+        '404':
+          description: Hotel not found
+
+    delete:
+      summary: Delete a hotel
+      description: Deletes a hotel by ID.
+      parameters:
+        - name: hotelId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Hotel ID
+      responses:
+        '204':
+          description: Hotel successfully deleted
+        '404':
+          description: Hotel not found
+
+  /bookings:
+    get:
+      summary: Get all bookings
+      description: Returns a list of all bookings.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+
+    post:
+      summary: Add a new booking
+      description: Creates a new booking.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Booking'
+      responses:
+        '201':
+          description: Booking successfully created
+        '400':
+          description: Invalid input
+
+  /bookings/{bookingId}:
+    get:
+      summary: Get booking details
+      description: Returns the details of a specific booking by ID.
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Booking ID
+      responses:
+        '200':
+          description: Booking details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '404':
+          description: Booking not found
+
+    put:
+      summary: Update a booking
+      description: Updates the details of a specific booking.
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Booking ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Booking'
+      responses:
+        '200':
+          description: Booking successfully updated
+        '404':
+          description: Booking not found
+
+    delete:
+      summary: Delete a booking
+      description: Deletes a booking by ID.
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Booking ID
+      responses:
+        '204':
+          description: Booking successfully deleted
+        '404':
+          description: Booking not found
+
+components:
+  schemas:
+    Hotel:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Hotel Sunrise"
+        city:
+          type: string
+          example: "Paris"
+        price:
+          type: number
+          format: float
+          example: 120.50
+        image:
+          type: string
+          example: "https://example.com/hotel1.jpg"
+
+    Booking:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 101
+        hotelId:
+          type: integer
+          example: 1
+        userName:
+          type: string
+          example: "John Doe"
+        checkInDate:
+          type: string
+          format: date
+          example: "2023-02-15"
+        checkOutDate:
+          type: string
+          format: date
+          example: "2023-02-20"
+        totalPrice:
+          type: number
+          format: float
+          example: 600.00
