@@ -1,118 +1,185 @@
 openapi: 3.0.0
 info:
   title: Booking.com API
-  description: API for managing hotels and bookings.
+  description: API for managing accommodations, rooms, bookings, users, and sessions.
   version: 1.0.0
 servers:
-  - url: http://localhost:3000
+  - url: /
     description: Local development server
 
+tags:
+  - name: Accommodations
+    description: Operations related to accommodations (hotels, apartments, etc.)
+  - name: Rooms
+    description: Operations related to rooms
+  - name: Bookings
+    description: Operations related to bookings
+  - name: Users
+    description: Operations related to user management
+  - name: Sessions
+    description: User session management
+
 paths:
-  /hotels:
+  /accommodations:
     get:
-      summary: Get all hotels
-      description: Returns a list of all available hotels.
+      tags:
+        - Accommodations
+      summary: Get all accommodations
       responses:
         '200':
-          description: Successful response
+          description: List of accommodations
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Hotel'
-
+                  $ref: '#/components/schemas/Accommodation'
     post:
-      summary: Add a new hotel
-      description: Creates a new hotel.
+      tags:
+        - Accommodations
+      summary: Add a new accommodation
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Hotel'
+              $ref: '#/components/schemas/Accommodation'
       responses:
         '201':
-          description: Hotel successfully created
-        '400':
-          description: Invalid input
+          description: Accommodation successfully created
 
-  /hotels/{hotelId}:
-    get:
-      summary: Get hotel details
-      description: Returns the details of a specific hotel by ID.
+  /accommodations/{id}:
+    patch:
+      tags:
+        - Accommodations
+      summary: Update an accommodation
+      security:
+        - bearerAuth: []
       parameters:
-        - name: hotelId
-          in: path
+        - in: path
+          name: id
+          description: Accommodation ID
           required: true
           schema:
             type: integer
-          description: Hotel ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Accommodation'
       responses:
         '200':
-          description: Hotel details
+          description: Accommodation successfully updated
+    delete:
+      tags:
+        - Accommodations
+      summary: Delete an accommodation
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          description: Accommodation ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Accommodation successfully deleted
+
+  /rooms:
+    get:
+      tags:
+        - Rooms
+      summary: Get all rooms
+      responses:
+        '200':
+          description: List of rooms
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Hotel'
-        '404':
-          description: Hotel not found
-
-    put:
-      summary: Update hotel details
-      description: Updates the details of a specific hotel.
-      parameters:
-        - name: hotelId
-          in: path
-          required: true
-          schema:
-            type: integer
-          description: Hotel ID
+                type: array
+                items:
+                  $ref: '#/components/schemas/Room'
+    post:
+      tags:
+        - Rooms
+      summary: Add a new room
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Hotel'
+              $ref: '#/components/schemas/Room'
       responses:
-        '200':
-          description: Hotel successfully updated
-        '404':
-          description: Hotel not found
+        '201':
+          description: Room successfully created
 
-    delete:
-      summary: Delete a hotel
-      description: Deletes a hotel by ID.
+  /rooms/{id}:
+    patch:
+      tags:
+        - Rooms
+      summary: Update a room
+      security:
+        - bearerAuth: []
       parameters:
-        - name: hotelId
-          in: path
+        - in: path
+          name: id
+          description: Room ID
           required: true
           schema:
             type: integer
-          description: Hotel ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Room'
+      responses:
+        '200':
+          description: Room successfully updated
+    delete:
+      tags:
+        - Rooms
+      summary: Delete a room
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          description: Room ID
+          required: true
+          schema:
+            type: integer
       responses:
         '204':
-          description: Hotel successfully deleted
-        '404':
-          description: Hotel not found
+          description: Room successfully deleted
 
   /bookings:
     get:
+      tags:
+        - Bookings
       summary: Get all bookings
-      description: Returns a list of all bookings.
       responses:
         '200':
-          description: Successful response
+          description: List of bookings
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Booking'
-
     post:
-      summary: Add a new booking
-      description: Creates a new booking.
+      tags:
+        - Bookings
+      summary: Create a booking
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -122,40 +189,21 @@ paths:
       responses:
         '201':
           description: Booking successfully created
-        '400':
-          description: Invalid input
 
-  /bookings/{bookingId}:
-    get:
-      summary: Get booking details
-      description: Returns the details of a specific booking by ID.
-      parameters:
-        - name: bookingId
-          in: path
-          required: true
-          schema:
-            type: integer
-          description: Booking ID
-      responses:
-        '200':
-          description: Booking details
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Booking'
-        '404':
-          description: Booking not found
-
-    put:
+  /bookings/{id}:
+    patch:
+      tags:
+        - Bookings
       summary: Update a booking
-      description: Updates the details of a specific booking.
+      security:
+        - bearerAuth: []
       parameters:
-        - name: bookingId
-          in: path
+        - in: path
+          name: id
+          description: Booking ID
           required: true
           schema:
             type: integer
-          description: Booking ID
       requestBody:
         required: true
         content:
@@ -165,68 +213,174 @@ paths:
       responses:
         '200':
           description: Booking successfully updated
-        '404':
-          description: Booking not found
-
     delete:
+      tags:
+        - Bookings
       summary: Delete a booking
-      description: Deletes a booking by ID.
+      security:
+        - bearerAuth: []
       parameters:
-        - name: bookingId
-          in: path
+        - in: path
+          name: id
+          description: Booking ID
           required: true
           schema:
             type: integer
-          description: Booking ID
       responses:
         '204':
           description: Booking successfully deleted
-        '404':
-          description: Booking not found
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      tags:
+        - Users
+      summary: Register a new user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User successfully created
+
+  /users/{id}:
+    patch:
+      tags:
+        - Users
+      summary: Update a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          description: User ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User successfully updated
+    delete:
+      tags:
+        - Users
+      summary: Delete a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          description: User ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: User successfully deleted
+
+  /sessions:
+    post:
+      tags:
+        - Sessions
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
-    Hotel:
+    Accommodation:
       type: object
       properties:
         id:
           type: integer
-          example: 1
         name:
           type: string
-          example: "Hotel Sunrise"
         city:
           type: string
-          example: "Paris"
+        address:
+          type: string
+        rating:
+          type: number
+
+    Room:
+      type: object
+      properties:
+        id:
+          type: integer
+        accommodationId:
+          type: integer
+        type:
+          type: string
         price:
           type: number
-          format: float
-          example: 120.50
-        image:
-          type: string
-          example: "https://example.com/hotel1.jpg"
 
     Booking:
       type: object
       properties:
         id:
           type: integer
-          example: 101
-        hotelId:
+        accommodationId:
           type: integer
-          example: 1
         userName:
           type: string
-          example: "John Doe"
         checkInDate:
           type: string
-          format: date
-          example: "2023-02-15"
         checkOutDate:
           type: string
-          format: date
-          example: "2023-02-20"
-        totalPrice:
-          type: number
-          format: float
-          example: 600.00
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
