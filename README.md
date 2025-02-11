@@ -1,4 +1,4 @@
-# Booking.com Backend API
+# Booking.com clone Backend API
 
 ## Overview
 A Node.js/Express.js backend service for managing accommodations, rooms, bookings, and users. The API provides comprehensive endpoints for a booking platform with in-memory data storage.
