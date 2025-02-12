@@ -14,28 +14,37 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Authentication middleware
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    // In a real app, verify JWT token here
+    next();
+};
+
+// In-memory "database" collections
+const accommodations = [];
+const rooms = [];
+const bookings = [];
+const users = [];
+
 // Load OpenAPI documentation
 const swaggerDocument = yaml.load(fs.readFileSync("openapi.yaml", "utf8"));
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// In-memory "database" collections (using const since we will mutate the arrays)
-const accommodations = []; // corresponds to the Accommodation schema
-const rooms = [];          // corresponds to the Room schema
-const bookings = [];       // corresponds to the Booking schema
-const users = [];          // corresponds to the User schema
-
 /**
  * Accommodations Endpoints
- * GET /accommodations - Get all accommodations
- * POST /accommodations - Create a new accommodation
- * PATCH /accommodations/:id - Update an accommodation
- * DELETE /accommodations/:id - Delete an accommodation
  */
 app.get("/accommodations", (req, res) => {
     res.json(accommodations);
 });
 
-app.post("/accommodations", (req, res) => {
+app.post("/accommodations", authenticateToken, (req, res) => {
     const { name, city, address, rating } = req.body;
     if (!name || !city || !address || rating === undefined) {
         return res.status(400).json({ message: "Name, city, address and rating are required" });
@@ -48,10 +57,11 @@ app.post("/accommodations", (req, res) => {
         rating
     };
     accommodations.push(newAccommodation);
+    res.location(`/accommodations/${newAccommodation.id}`);
     res.status(201).json(newAccommodation);
 });
 
-app.patch("/accommodations/:id", (req, res) => {
+app.patch("/accommodations/:id", authenticateToken, (req, res) => {
     const id = parseInt(req.params.id, 10);
     const accommodation = accommodations.find(a => a.id === id);
     if (!accommodation) {
@@ -61,7 +71,7 @@ app.patch("/accommodations/:id", (req, res) => {
     res.json(accommodation);
 });
 
-app.delete("/accommodations/:id", (req, res) => {
+app.delete("/accommodations/:id", authenticateToken, (req, res) => {
     const id = parseInt(req.params.id, 10);
     const index = accommodations.findIndex(a => a.id === id);
     if (index === -1) {
@@ -73,16 +83,12 @@ app.delete("/accommodations/:id", (req, res) => {
 
 /**
  * Rooms Endpoints
- * GET /rooms - Get all rooms
- * POST /rooms - Create a new room
- * PATCH /rooms/:id - Update a room
- * DELETE /rooms/:id - Delete a room
  */
 app.get("/rooms", (req, res) => {
     res.json(rooms);
 });
 
-app.post("/rooms", (req, res) => {
+app.post("/rooms", authenticateToken, (req, res) => {
     const { accommodationId, type, price } = req.body;
     if (!accommodationId || !type || price === undefined) {
         return res.status(400).json({ message: "AccommodationId, type, and price are required" });
@@ -94,10 +100,11 @@ app.post("/rooms", (req, res) => {
         price
     };
     rooms.push(newRoom);
+    res.location(`/rooms/${newRoom.id}`);
     res.status(201).json(newRoom);
 });
 
-app.patch("/rooms/:id", (req, res) => {
+app.patch("/rooms/:id", authenticateToken, (req, res) => {
     const id = parseInt(req.params.id, 10);
     const room = rooms.find(r => r.id === id);
     if (!room) {
@@ -107,7 +114,7 @@ app.patch("/rooms/:id", (req, res) => {
     res.json(room);
 });
 
-app.delete("/rooms/:id", (req, res) => {
+app.delete("/rooms/:id", authenticateToken, (req, res) => {
     const id = parseInt(req.params.id, 10);
     const index = rooms.findIndex(r => r.id === id);
     if (index === -1) {
@@ -119,16 +126,12 @@ app.delete("/rooms/:id", (req, res) => {
 
 /**
  * Bookings Endpoints
- * GET /bookings - Get all bookings
- * POST /bookings - Create a new booking
- * PATCH /bookings/:id - Update a booking
- * DELETE /bookings/:id - Delete a booking
  */
 app.get("/bookings", (req, res) => {
     res.json(bookings);
 });
 
-app.post("/bookings", (req, res) => {
+app.post("/bookings", authenticateToken, (req, res) => {
     const { accommodationId, userName, checkInDate, checkOutDate } = req.body;
     if (!accommodationId || !userName || !checkInDate || !checkOutDate) {
         return res.status(400).json({ message: "AccommodationId, userName, checkInDate and checkOutDate are required" });
@@ -141,10 +144,11 @@ app.post("/bookings", (req, res) => {
         checkOutDate
     };
     bookings.push(newBooking);
+    res.location(`/bookings/${newBooking.id}`);
     res.status(201).json(newBooking);
 });
 
-app.patch("/bookings/:id", (req, res) => {
+app.patch("/bookings/:id", authenticateToken, (req, res) => {
     const id = parseInt(req.params.id, 10);
     const booking = bookings.find(b => b.id === id);
     if (!booking) {
@@ -154,7 +158,7 @@ app.patch("/bookings/:id", (req, res) => {
     res.json(booking);
 });
 
-app.delete("/bookings/:id", (req, res) => {
+app.delete("/bookings/:id", authenticateToken, (req, res) => {
     const id = parseInt(req.params.id, 10);
     const index = bookings.findIndex(b => b.id === id);
     if (index === -1) {
@@ -166,13 +170,8 @@ app.delete("/bookings/:id", (req, res) => {
 
 /**
  * Users Endpoints
- * GET /users - Get all users (without passwords)
- * POST /users - Register a new user
- * PATCH /users/:id - Update a user
- * DELETE /users/:id - Delete a user
  */
 app.get("/users", (req, res) => {
-    // Return users without passwords
     const safeUsers = users.map(({ password, ...user }) => user);
     res.json(safeUsers);
 });
@@ -182,7 +181,6 @@ app.post("/users", (req, res) => {
     if (!email || !name || !password) {
         return res.status(400).json({ message: "Email, name, and password are required" });
     }
-    // Check if user already exists
     const exists = users.find(u => u.email === email);
     if (exists) {
         return res.status(409).json({ message: "User already exists" });
@@ -194,12 +192,12 @@ app.post("/users", (req, res) => {
         password // In a real application, never store plaintext passwords
     };
     users.push(newUser);
-    // Return the user without the password
     const { password: _, ...safeUser } = newUser;
+    res.location(`/users/${newUser.id}`);
     res.status(201).json(safeUser);
 });
 
-app.patch("/users/:id", (req, res) => {
+app.patch("/users/:id", authenticateToken, (req, res) => {
     const id = parseInt(req.params.id, 10);
     const user = users.find(u => u.id === id);
     if (!user) {
@@ -210,7 +208,7 @@ app.patch("/users/:id", (req, res) => {
     res.json(safeUser);
 });
 
-app.delete("/users/:id", (req, res) => {
+app.delete("/users/:id", authenticateToken, (req, res) => {
     const id = parseInt(req.params.id, 10);
     const index = users.findIndex(u => u.id === id);
     if (index === -1) {
@@ -221,8 +219,7 @@ app.delete("/users/:id", (req, res) => {
 });
 
 /**
- * Sessions Endpoint
- * POST /sessions - User login
+ * Sessions Endpoints
  */
 app.post("/sessions", (req, res) => {
     const { email, password } = req.body;
@@ -235,6 +232,11 @@ app.post("/sessions", (req, res) => {
     }
     // In a real app, you would generate a JWT token here
     res.status(200).json({ token: "fake-jwt-token" });
+});
+
+app.delete("/sessions", authenticateToken, (req, res) => {
+    // In a real app, invalidate the token
+    res.status(204).send();
 });
 
 /**

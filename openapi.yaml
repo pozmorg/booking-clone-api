@@ -46,6 +46,11 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Accommodation'
+            example:
+              name: "Grand Hotel"
+              city: "Paris"
+              address: "123 Champs-Élysées"
+              rating: 4.5
       responses:
         '201':
           description: Accommodation successfully created
@@ -70,6 +75,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Accommodation'
+            example:
+              name: "Grand Hotel Luxe"
+              rating: 4.8
       responses:
         '200':
           description: Accommodation successfully updated
@@ -116,6 +124,10 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Room'
+            example:
+              accommodationId: 1
+              type: "Deluxe Suite"
+              price: 299.99
       responses:
         '201':
           description: Room successfully created
@@ -140,6 +152,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Room'
+            example:
+              type: "Premium Suite"
+              price: 349.99
       responses:
         '200':
           description: Room successfully updated
@@ -186,6 +201,11 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Booking'
+            example:
+              accommodationId: 1
+              userName: "John Doe"
+              checkInDate: "2025-03-15"
+              checkOutDate: "2025-03-20"
       responses:
         '201':
           description: Booking successfully created
@@ -210,6 +230,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Booking'
+            example:
+              checkInDate: "2025-03-16"
+              checkOutDate: "2025-03-21"
       responses:
         '200':
           description: Booking successfully updated
@@ -256,6 +279,10 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/User'
+            example:
+              email: "john@example.com"
+              name: "John Doe"
+              password: "securepassword123"
       responses:
         '201':
           description: User successfully created
@@ -280,6 +307,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/User'
+            example:
+              name: "John Smith"
+              email: "john.smith@example.com"
       responses:
         '200':
           description: User successfully updated
@@ -316,6 +346,9 @@ paths:
                   type: string
                 password:
                   type: string
+            example:
+              email: "john@example.com"
+              password: "securepassword123"
       responses:
         '200':
           description: Login successful
